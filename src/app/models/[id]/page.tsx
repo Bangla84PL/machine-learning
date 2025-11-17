@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Loading } from '@/components/ui/Loading'
+import { ConfusionMatrix } from '@/components/charts/ConfusionMatrix'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import { Model } from '@/types'
@@ -87,9 +88,11 @@ export default function ModelDetailPage() {
                 Trained {formatDate(model.trained_at)} • {model.problem_type}
               </p>
             </div>
-            <Button variant="jungle" size="lg">
-              Make Predictions
-            </Button>
+            <Link href={`/models/${model.id}/predict`}>
+              <Button variant="jungle" size="lg">
+                Make Predictions
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -273,12 +276,31 @@ export default function ModelDetailPage() {
           </Card>
         )}
 
+        {/* Confusion Matrix (for classification models) */}
+        {model.problem_type === 'classification' &&
+         model.metrics.confusion_matrix &&
+         model.metrics.confusion_matrix.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Confusion Matrix</CardTitle>
+              <p className="text-white/60 text-sm mt-1">
+                Visualize correct and incorrect predictions
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ConfusionMatrix matrix={model.metrics.confusion_matrix} />
+            </CardContent>
+          </Card>
+        )}
+
         {/* Actions */}
         <div className="flex gap-3">
           <Link href="/models">
             <Button variant="outline">← Back to Models</Button>
           </Link>
-          <Button variant="jungle">Make Predictions</Button>
+          <Link href={`/models/${model.id}/predict`}>
+            <Button variant="jungle">Make Predictions</Button>
+          </Link>
         </div>
       </div>
 
